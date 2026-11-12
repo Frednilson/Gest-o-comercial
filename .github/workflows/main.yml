@@ -1,0 +1,56 @@
+name: Compilar APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Gerar a parte Android
+        run: flutter create . --platforms=android --org mz.gestaocomercial --project-name gestao_comercial
+
+      - name: Permissão da câmara e minSdk 23
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          if ! grep -q "android.permission.CAMERA" "$MANIFEST"; then
+            sed -i 's#<application#<uses-permission android:name="android.permission.CAMERA"/>\n    <uses-feature android:name="android.hardware.camera" android:required="false"/>\n    <application#' "$MANIFEST"
+          fi
+          for f in android/app/build.gradle android/app/build.gradle.kts; do
+            [ -f "$f" ] && sed -i -E 's/minSdk(Version)?( =|) *flutter\.minSdkVersion/minSdk\1\2 23/' "$f"
+          done
+          grep -n "minSdk" android/app/build.gradle* || true
+          grep -n "CAMERA" "$MANIFEST"
+
+      - run: flutter pub get
+
+      - name: Análise do código (informativa)
+        run: flutter analyze || true
+
+      - name: Testes
+        run: |
+          sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+          flutter test
+
+      - name: Compilar APK
+        run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gestao-comercial-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
