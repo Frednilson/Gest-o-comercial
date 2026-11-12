@@ -1,0 +1,49 @@
+name: gestao_comercial
+description: Sistema Android de gestão comercial offline para pequenos e médios estabelecimentos em Moçambique.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Estado
+  provider: ^6.1.2
+
+  # Base de dados e armazenamento
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
+  path_provider: ^2.1.4
+  shared_preferences: ^2.3.2
+
+  # UI, gráficos e formatação
+  fl_chart: ^0.69.0
+  intl: ">=0.19.0 <0.21.0" # a versão exacta é fixada pelo flutter_localizations
+  cupertino_icons: ^1.0.8
+
+  # PDF, impressão e partilha
+  pdf: ^3.11.1
+  printing: ^5.13.3
+  share_plus: ^10.0.2
+
+  # Câmara, scanner e imagens
+  mobile_scanner: ^5.2.3
+  image_picker: ^1.1.2
+  permission_handler: ^11.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  sqflite_common_ffi: ^2.3.3 # testes da base de dados no computador
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
