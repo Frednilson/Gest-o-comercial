@@ -22,8 +22,23 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Gerar a parte Android
-        run: flutter create . --platforms=android --org mz.gestaocomercial --project-name gestao_comercial
+      - name: Confirmar que os ficheiros do projecto foram enviados
+        run: |
+          ls -la
+          test -f lib/app/app.dart || (echo "ERRO: a pasta lib não foi enviada completa para o GitHub" && exit 1)
+          grep -q GestaoComercialApp lib/main.dart || (echo "ERRO: lib/main.dart não é o do projecto" && exit 1)
+
+      - name: Gerar a parte Android (sem perder os ficheiros do projecto)
+        run: |
+          mkdir -p ../orig
+          cp -r lib test pubspec.yaml ../orig/
+          flutter create . --platforms=android --org mz.gestaocomercial --project-name gestao_comercial
+          rm -rf lib test
+          cp -r ../orig/lib ../orig/test .
+          cp ../orig/pubspec.yaml pubspec.yaml
+          rm -f test/widget_test.dart
+          mkdir -p assets/images assets/icons
+          head -5 lib/main.dart
 
       - name: Permissão da câmara e minSdk 23
         run: |
